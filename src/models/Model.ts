@@ -17,39 +17,54 @@ class Model {
       .first()
   }
 
+  async findOne (where) {
+    return await knex(this.table)
+      .where(where)
+      .first()
+  }
+
   async save (data: object) {
     const trx = await knex.transaction()
+    try {
+      const result = await trx(this.table)
+        .insert(data)
 
-    const result = await trx(this.table)
-      .insert(data)
+      await trx.commit()
 
-    await trx.commit()
-
-    return result
+      return result
+    } catch (error) {
+      trx.rollback()
+    }
   }
 
   async update (id: number, data: object) {
     const trx = await knex.transaction()
+    try {
+      const result = await trx(this.table)
+        .where('id', id)
+        .update(data)
 
-    const result = await trx(this.table)
-      .where('id', id)
-      .update(data)
+      await trx.commit()
 
-    await trx.commit()
-
-    return result
+      return result
+    } catch (error) {
+      trx.rollback()
+    }
   }
 
   async delete (id: number) {
     const trx = await knex.transaction()
+    try {
+      const result = await trx(this.table)
+        .where('id', id)
+        .del()
 
-    const result = await trx(this.table)
-      .where('id', id)
-      .del()
+      await trx.commit()
 
-    await trx.commit()
-
-    return result
+      return result
+    } catch (error) {
+      trx.rollback()
+    }
   }
 }
 
