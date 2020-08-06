@@ -13,6 +13,7 @@ routes.get('/', (request, response) => {
 // Classes controller
 routes.get('/classes', ClassesController.index)
 routes.post('/classes', ClassesController.store)
+routes.delete('/classes/:id', ClassesController.delete)
 
 // ConnectionsController controller
 routes.get('/connections', ConnectionsController.index)

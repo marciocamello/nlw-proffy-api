@@ -6,9 +6,7 @@ const app = express()
 
 const port = process.env.PORT || 3333
 
-app.use(cors({
-  origin: process.env.ORIGIN_URL
-}))
+app.use(cors())
 app.use(express.json())
 app.use(routes)
 app.use(express.urlencoded({ extended: false }))

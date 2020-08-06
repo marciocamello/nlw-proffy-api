@@ -4,6 +4,7 @@ import Classes from '../models/Classes'
 import ClassSchedule from '../models/ClassSchedule'
 
 import convertHourToMinutes from '../utils/convertHourToMinutes'
+import ClassVideo from '../models/ClassVideo'
 
 interface ScheduleItem{
   week_day: number;
@@ -22,11 +23,7 @@ class ClassesController {
     try {
       const filters = request.query as unknown as ClassesFilters
 
-      if (!filters.week_day || !filters.subject || !filters.time) {
-        throw new Error('Missing filters to sear')
-      }
-
-      const timeInMinutes = convertHourToMinutes(filters.time)
+      const timeInMinutes = filters.time ? convertHourToMinutes(filters.time) : ''
 
       const classes = await Classes.list({
         ...filters,
@@ -46,17 +43,20 @@ class ClassesController {
     try {
       const {
         name,
+        email,
         avatar,
         whatsapp,
         bio,
         subject,
         cost,
-        schedule
+        schedule,
+        embed
       } = request.body
 
       // save user
       const insertedUsersId = await Users.save({
         name,
+        email,
         avatar,
         whatsapp,
         bio
@@ -87,8 +87,29 @@ class ClassesController {
       // save class schedule
       await ClassSchedule.save(classScheduleMap)
 
+      // save class video
+      if (embed) {
+        await ClassVideo.save({
+          class_id,
+          embed
+        })
+      }
+
       return response.status(201).json({
         message: 'Classe criada com sucesso'
+      })
+    } catch (e) {
+      return response.status(400).json({ message: e.message })
+    }
+  }
+
+  async delete (request: Request, response: Response): Promise<Response> {
+    try {
+      const { id } = request.params
+
+      await Classes.delete(Number(id))
+      return response.status(201).json({
+        message: 'Classe removida'
       })
     } catch (e) {
       return response.status(400).json({ message: e.message })
